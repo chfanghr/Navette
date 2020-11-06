@@ -8,7 +8,7 @@ struct CreateUsers: Migration {
                 .unique(on: "username")
                 .field("password_hash", .string, .required)
                 .field("created_at", .datetime, .required)
-                .field("expired_at", .datetime, .required)
+                .field("updated_at", .datetime, .required)
                 .create()
     }
 

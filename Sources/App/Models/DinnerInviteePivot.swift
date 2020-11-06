@@ -16,7 +16,7 @@ final class DinnerInviteePivot: Model {
     init() {
     }
 
-    init(id: UUID?, dinnerId: Dinner.IDValue, inviteeId: User.IDValue) {
+    init(id: UUID? = nil, dinnerId: Dinner.IDValue, inviteeId: User.IDValue) {
         self.id = id
         self.$dinner.id = dinnerId
         self.$invitee.id = inviteeId

@@ -38,7 +38,8 @@ final class User: Model {
 
 extension User {
     static func create(from userSignup: UserSignup) throws -> User {
-        throw Abort(.notImplemented)
+        User(username: userSignup.username,
+                passwordHash: try Bcrypt.hash(userSignup.password))
     }
 
     func asPublic() throws -> Public {
@@ -46,5 +47,14 @@ extension User {
                 id: try requireID(),
                 createdAt: createdAt,
                 updatedAt: updatedAt)
+    }
+
+    func createToken(source: SessionSource) throws -> Token {
+        let calendar = Calendar(identifier: .gregorian)
+        let expireDate = calendar.date(byAdding: .year, value: 1, to: Date())
+        return try Token(userId: requireID(),
+                token: [UInt8].random(count: 16).base64,
+                source: source,
+                expiresAt: expireDate)
     }
 }

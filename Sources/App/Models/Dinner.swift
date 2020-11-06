@@ -39,7 +39,7 @@ final class Dinner: Model {
     init() {
     }
 
-    init(id: UUID?, date: Date, location: String, hostId: User.IDValue) {
+    init(id: UUID? = nil, date: Date, location: String, hostId: User.IDValue) {
         self.id = id
         self.date = date
         self.location = location
