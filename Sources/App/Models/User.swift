@@ -58,3 +58,15 @@ extension User {
                 expiresAt: expireDate)
     }
 }
+
+extension User: ModelAuthenticatable{
+    static var usernameKey = \User.$username
+
+    static var passwordHashKey = \User.$passwordHash
+
+    func verify(password: String) throws -> Bool {
+        try Bcrypt.verify(password, created: self.passwordHash)
+    }
+
+
+}

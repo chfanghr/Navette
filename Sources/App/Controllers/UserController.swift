@@ -20,7 +20,15 @@ extension UserSignup: Validatable {
 
 struct UserController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        routes.grouped("user").post("signup", use: create)
+        routes.group("user") {
+            $0.post("signup", use: create)
+            $0.group(Token.authenticator()) {
+                $0.get("me", use: getMyOwnUser)
+            }
+            $0.group(User.authenticator()) {
+                $0.post("login", use: login)
+            }
+        }
     }
 
     fileprivate func create(req: Request) throws -> EventLoopFuture<NewSession> {
@@ -56,10 +64,15 @@ struct UserController: RouteCollection {
     }
 
     fileprivate func login(req: Request) throws -> EventLoopFuture<NewSession> {
-        throw Abort(.notImplemented)
+        let user = try req.auth.require(User.self)
+        let token = try user.createToken(source: .login)
+
+        return token.save(on: req.db).flatMapThrowing {
+            NewSession(token: token.value, user: try user.asPublic())
+        }
     }
 
     func getMyOwnUser(req: Request) throws -> User.Public {
-        throw Abort(.notImplemented)
+        try req.auth.require(User.self).asPublic()
     }
 }
