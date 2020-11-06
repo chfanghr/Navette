@@ -1,21 +1,31 @@
 import Fluent
-import FluentMySQLDriver
 import Vapor
+import FluentSQLiteDriver
 
-// configures your application
 public func configure(_ app: Application) throws {
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    let encoder = JSONEncoder()
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    encoder.dateEncodingStrategy = .iso8601
 
-    app.databases.use(.mysql(
-        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-        username: Environment.get("DATABASE_USERNAME") ?? "vapor_username",
-        password: Environment.get("DATABASE_PASSWORD") ?? "vapor_password",
-        database: Environment.get("DATABASE_NAME") ?? "vapor_database"
-    ), as: .mysql)
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    decoder.dateDecodingStrategy = .iso8601
 
-    app.migrations.add(CreateTodo())
+    ContentConfiguration.global.use(encoder: encoder, for: .json)
+    ContentConfiguration.global.use(decoder: decoder, for: .json)
 
-    // register routes
+    app.databases.use(.sqlite(
+            .file(Environment.get("DATABASE_FILE") ?? "Navette.db")),
+            as: .sqlite)
+
+    app.middleware.use(
+            ErrorMiddleware.default(environment: app.environment))
+
+    app.migrations.add(CreateUsers())
+    app.migrations.add(CreateTokens())
+    app.migrations.add(CreateDinners())
+    app.migrations.add(CreateDinnerUserPivot())
+    try app.autoMigrate().wait()
+
     try routes(app)
 }
