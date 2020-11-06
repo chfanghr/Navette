@@ -27,6 +27,7 @@ struct UserController: RouteCollection {
             }
             $0.group(User.authenticator()) {
                 $0.post("login", use: login)
+                $0.get("me", use: getMyOwnUser)
             }
         }
     }
