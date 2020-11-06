@@ -23,8 +23,6 @@ public func configure(_ app: Application) throws {
 
     app.migrations.add(CreateUsers())
     app.migrations.add(CreateTokens())
-    app.migrations.add(CreateDinners())
-    app.migrations.add(CreateDinnerUserPivot())
     try app.autoMigrate().wait()
 
     try routes(app)
